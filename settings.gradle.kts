@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ZeroMQController"
+rootProject.name = "RevalExoTCPController"
 include(":app")
  

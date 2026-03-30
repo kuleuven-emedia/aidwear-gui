@@ -1,4 +1,4 @@
-package com.emedia.zeromqcontroller.ui.theme
+package com.emedia.revalexotcpcontroller.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

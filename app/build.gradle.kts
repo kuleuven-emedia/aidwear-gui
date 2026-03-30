@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.emedia.zeromqcontroller"
+    namespace = "com.emedia.revalexotcpcontroller"
     compileSdk = 36
 
     defaultConfig {

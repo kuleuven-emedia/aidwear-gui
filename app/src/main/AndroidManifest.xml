@@ -12,11 +12,11 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/app_icon_revalexo_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ZeroMQController">
+        android:theme="@style/Theme.RevalExoController">
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.ZeroMQController"
+            android:theme="@style/Theme.RevalExoController"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
