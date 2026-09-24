@@ -1,0 +1,111 @@
+# ====================================================================
+# Android & Gradle Build Artifacts
+# ====================================================================
+**/build/
+**/.gradle/
+**/gradlew
+**/gradlew.bat
+**/gradle/wrapper/gradle-wrapper.jar
+**/*.apk
+**/*.aab
+**/*.ap_
+**/*.dex
+**/*.class
+**/*.bundle
+
+# ====================================================================
+# IDE, Editor, & System Metadata
+# ====================================================================
+.idea/
+*.iml
+.vscode/
+**/.DS_Store
+Thumbs.db
+*.swp
+*.bak
+*~
+
+# ====================================================================
+# Binary & Asset Files (Heavy Token Sinks)
+# ====================================================================
+# Fonts & Vector binaries
+**/*.ttf
+**/*.otf
+**/*.woff
+**/*.woff2
+
+# Raster & Bitmap Images
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.webp
+**/*.gif
+**/*.ico
+
+# Audio & Video assets
+**/*.mp3
+**/*.wav
+**/*.ogg
+**/*.mp4
+**/*.mov
+
+# Archives & Keystores
+**/*.zip
+**/*.tar
+**/*.tar.gz
+**/*.keystore
+**/*.jks
+
+# ====================================================================
+# Baseline Profiles & Generated Tooling Metadata
+# ====================================================================
+**/baseline-prof.txt
+**/baseline-prof.json
+**/*.hprof
+**/captures/
+**/lint/
+**/reports/
+
+# ====================================================================
+# Lockfiles & Verbose Dependency Metadata
+# ====================================================================
+gradle.lockfile
+**/gradle/*.lockfile
+
+# ====================================================================
+# Large Mock Datasets & Test Fixtures
+# ====================================================================
+
+# Standard JVM / Android Test Resource Fixtures
+**/src/test/resources/**/*.json
+**/src/androidTest/resources/**/*.json
+**/src/test/assets/**/*.json
+**/src/androidTest/assets/**/*.json
+
+# Common mock directory conventions
+**/mock/
+**/mocks/
+**/fixtures/
+**/test-data/
+**/wiremock/
+
+# Large raw mock data bundled in app assets/raw
+**/src/main/assets/mock*/**/*.json
+**/src/main/assets/fixtures/**/*.json
+**/src/main/res/raw/*.json
+
+# Large tabular/data serialization formats often used for testing
+**/*.csv
+**/*.tsv
+**/*.parquet
+**/*.arrow
+**/*.sqlite
+**/*.db
+**/*.bin
+**/*.dat
+
+# ====================================================================
+# Exceptions (Keep critical configuration JSONs in context)
+# ====================================================================
+!**/google-services.json
+!**/schema.json

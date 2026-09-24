@@ -1,4 +1,4 @@
-package com.emedia.revalexotcpcontroller
+package com.emedia.aidwearcontroller
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow

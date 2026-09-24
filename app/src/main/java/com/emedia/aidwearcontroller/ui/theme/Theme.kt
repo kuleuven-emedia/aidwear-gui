@@ -1,4 +1,4 @@
-package com.emedia.revalexotcpcontroller.ui.theme
+package com.emedia.aidwearcontroller.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

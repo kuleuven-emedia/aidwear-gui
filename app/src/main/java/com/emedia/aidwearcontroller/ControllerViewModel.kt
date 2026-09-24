@@ -1,4 +1,4 @@
-package com.emedia.revalexotcpcontroller
+package com.emedia.aidwearcontroller
 
 import android.annotation.SuppressLint
 import android.app.Application
@@ -16,20 +16,22 @@ import kotlinx.coroutines.launch
 
 // Helper to find modes by name
 sealed class ControllerMode(val protocolName: String, val id: Byte) {
-    object Transparent : ControllerMode("Transparent", 0)
+    object Idle : ControllerMode("Idle", 0)
     object Walking : ControllerMode("Walking", 1)
-    object SitToStance : ControllerMode("Sit to Stance", 2)
+    object SitToStand : ControllerMode("Sit to Stand", 2)
     object StairAscent : ControllerMode("Stair Ascent", 3)
     object StairDescent : ControllerMode("Stair Descent", 4)
+    object Hurdle : ControllerMode("Hurdle", 5)
 
     companion object {
         fun fromProtocolName(name: String): ControllerMode? {
             return when(name) {
-                Transparent.protocolName -> Transparent
+                Idle.protocolName -> Idle
                 Walking.protocolName -> Walking
-                SitToStance.protocolName -> SitToStance
+                SitToStand.protocolName -> SitToStand
                 StairAscent.protocolName -> StairAscent
                 StairDescent.protocolName -> StairDescent
+                Hurdle.protocolName -> Hurdle
                 else -> null
             }
         }
@@ -46,7 +48,7 @@ class ControllerViewModel(application: Application) : AndroidViewModel(applicati
     private val _isReady = MutableStateFlow(false)
     val isReady: StateFlow<Boolean> = _isReady.asStateFlow()
 
-    private val _mode = MutableStateFlow<ControllerMode>(ControllerMode.Transparent)
+    private val _mode = MutableStateFlow<ControllerMode>(ControllerMode.Idle)
     val mode: StateFlow<ControllerMode> = _mode.asStateFlow()
 
     private val _assistiveLevel = MutableStateFlow(0)
@@ -164,20 +166,51 @@ class ControllerViewModel(application: Application) : AndroidViewModel(applicati
 
     private fun sendIntent(modeId: Byte) {
         viewModelScope.launch {
-            val success = tcpServer.sendBinaryMessage(0, modeId)
+            val success = tcpServer.sendBinaryMessage(MSG_TYPE_INTENT, modeId)
             if (success) _response.value = "Sent Intent: $modeId"
         }
     }
 
     private fun sendFatigue(level: Int) {
         viewModelScope.launch {
-            val success = tcpServer.sendBinaryMessage(1, level.toByte())
+            val success = tcpServer.sendBinaryMessage(MSG_TYPE_FATIGUE, level.toByte())
             if (success) _response.value = "Sent Fatigue: $level"
+        }
+    }
+
+    fun triggerSafetyStop() {
+        _mode.value = ControllerMode.Idle
+        triggerVibration()
+        viewModelScope.launch {
+            val success = tcpServer.sendBinaryMessage(MSG_TYPE_SAFETY_STOP, 0.toByte())
+            if (success) _response.value = "Sent Safety Stop"
+        }
+    }
+
+    fun calibrateMotors() {
+        viewModelScope.launch {
+            val success = tcpServer.sendBinaryMessage(MSG_TYPE_CALIBRATE_MOTORS, 0.toByte())
+            if (success) _response.value = "Sent Calibrate Motors"
+        }
+    }
+
+    fun calibrateImus() {
+        viewModelScope.launch {
+            val success = tcpServer.sendBinaryMessage(MSG_TYPE_CALIBRATE_IMUS, 0.toByte())
+            if (success) _response.value = "Sent Calibrate IMUs"
         }
     }
 
     override fun onCleared() {
         tcpServer.stop()
         super.onCleared()
+    }
+
+    companion object {
+        const val MSG_TYPE_INTENT: Byte = 0
+        const val MSG_TYPE_FATIGUE: Byte = 1
+        const val MSG_TYPE_SAFETY_STOP: Byte = 2
+        const val MSG_TYPE_CALIBRATE_MOTORS: Byte = 3
+        const val MSG_TYPE_CALIBRATE_IMUS: Byte = 4
     }
 }

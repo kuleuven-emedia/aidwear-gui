@@ -1,4 +1,4 @@
-package com.emedia.revalexotcpcontroller
+package com.emedia.aidwearcontroller
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -18,7 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -127,10 +126,11 @@ fun ControllerScreen(
 
     val modes = listOf(
         ControllerMode.Walking,
+        ControllerMode.Hurdle,
         ControllerMode.StairAscent,
-        ControllerMode.SitToStance,
         ControllerMode.StairDescent,
-        ControllerMode.Transparent
+        ControllerMode.SitToStand,
+        ControllerMode.Idle,
     )
 
     Scaffold { innerPadding ->
@@ -160,70 +160,107 @@ fun ControllerScreen(
                         BigModeButton(modes[2], currentMode, viewModel, isReady, Modifier.weight(1f))
                         BigModeButton(modes[3], currentMode, viewModel, isReady, Modifier.weight(1f))
                     }
-                    Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                    Row(modifier = Modifier.weight(1f).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         BigModeButton(modes[4], currentMode, viewModel, isReady, Modifier.weight(1f))
+                        BigModeButton(modes[5], currentMode, viewModel, isReady, Modifier.weight(1f))
                     }
                 }
 
                 // RIGHT SIDE (CONTROLS)
                 Column(
                     modifier = Modifier.weight(0.35f).fillMaxHeight(),
-                    verticalArrangement = Arrangement.SpaceBetween,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Spacer(modifier = Modifier.height(48.dp))
+                    // Safety Stop button (Emergency / high priority styling)
                     Button(
-                        onClick = { viewModel.changeAssistiveLevel(1) },
+                        onClick = { viewModel.triggerSafetyStop() },
                         enabled = isReady,
                         modifier = Modifier.fillMaxWidth().weight(1f),
                         shape = MaterialTheme.shapes.large,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                            disabledContainerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f),
-                            disabledContentColor = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.5f)
-                        )
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError,
+                            disabledContainerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.5f),
+                            disabledContentColor = MaterialTheme.colorScheme.onError.copy(alpha = 0.5f)
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp, pressedElevation = 0.dp)
                     ) {
-                        BoxWithConstraints(contentAlignment = Alignment.Center) {
-                            val iconSize = with(LocalDensity.current) { (maxHeight.toPx() * 0.6f).toSp() }
-                            Text("+", fontSize = iconSize, fontWeight = FontWeight.Bold)
+                        BoxWithConstraints(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            val iconSize = maxHeight * 0.35f
+                            val dynamicFontSize = with(LocalDensity.current) { (maxHeight.toPx() * 0.25f).toSp() }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(iconSize)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    text = AppRes.strings.safetyStop,
+                                    fontSize = dynamicFontSize,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    textAlign = TextAlign.Center,
+                                    lineHeight = dynamicFontSize * 1.1f,
+                                    maxLines = 2
+                                )
+                            }
                         }
                     }
 
-                    Column(
-                        modifier = Modifier.padding(vertical = 16.dp).fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.Bottom) {
-                            Text(assistiveLevel.toString(), fontSize = 60.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
-                            Text(" / 10", fontSize = 24.sp, modifier = Modifier.padding(bottom = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        LinearProgressIndicator(
-                            progress = { assistiveLevel / 10f },
-                            modifier = Modifier.fillMaxWidth(0.9f).height(12.dp),
-                            color = MaterialTheme.colorScheme.primary,
-                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                            strokeCap = StrokeCap.Round
-                        )
-                        Text(AppRes.strings.assistiveLevel, fontSize = 16.sp, textAlign = TextAlign.Center, style = MaterialTheme.typography.labelLarge)
-                    }
-
+                    // Calibrate Motors button
                     Button(
-                        onClick = { viewModel.changeAssistiveLevel(-1) },
+                        onClick = { viewModel.calibrateMotors() },
                         enabled = isReady,
                         modifier = Modifier.fillMaxWidth().weight(1f),
                         shape = MaterialTheme.shapes.large,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                            disabledContainerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f),
-                            disabledContentColor = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.5f)
-                        )
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
+                            disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.5f)
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp, pressedElevation = 0.dp)
                     ) {
-                        BoxWithConstraints(contentAlignment = Alignment.Center) {
-                            val iconSize = with(LocalDensity.current) { (maxHeight.toPx() * 0.6f).toSp() }
-                            Text("-", fontSize = iconSize, fontWeight = FontWeight.Bold)
+                        BoxWithConstraints(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            val dynamicFontSize = with(LocalDensity.current) { (maxHeight.toPx() * 0.25f).toSp() }
+                            Text(
+                                text = AppRes.strings.calibrateMotors,
+                                fontSize = dynamicFontSize,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center,
+                                lineHeight = dynamicFontSize * 1.1f,
+                                maxLines = 2
+                            )
+                        }
+                    }
+
+                    // Calibrate IMUs button
+                    Button(
+                        onClick = { viewModel.calibrateImus() },
+                        enabled = isReady,
+                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        shape = MaterialTheme.shapes.large,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
+                            disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.5f)
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp, pressedElevation = 0.dp)
+                    ) {
+                        BoxWithConstraints(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            val dynamicFontSize = with(LocalDensity.current) { (maxHeight.toPx() * 0.25f).toSp() }
+                            Text(
+                                text = AppRes.strings.calibrateImus,
+                                fontSize = dynamicFontSize,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center,
+                                lineHeight = dynamicFontSize * 1.1f,
+                                maxLines = 2
+                            )
                         }
                     }
                 }
@@ -231,10 +268,23 @@ fun ControllerScreen(
 
             // --- SETTINGS OVERLAY ---
             Box(
-                modifier = Modifier.align(Alignment.TopEnd).padding(top = 16.dp, end = 16.dp)
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 16.dp, end = 16.dp)
+                    .zIndex(5f)
             ) {
-                IconButton(onClick = { showMenu = true }) {
-                    Icon(Icons.Default.Settings, "Settings", modifier = Modifier.size(40.dp), tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f))
+                IconButton(
+                    onClick = { showMenu = true },
+                    colors = IconButtonDefaults.filledTonalIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
+                    Icon(
+                        Icons.Default.Settings,
+                        contentDescription = "Settings",
+                        modifier = Modifier.size(28.dp)
+                    )
                 }
                 DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                     DropdownMenuItem(text = { Text(AppRes.strings.connectionSettings) }, onClick = { showMenu = false; showIpDialog = true })

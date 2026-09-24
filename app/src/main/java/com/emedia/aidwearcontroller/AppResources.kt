@@ -1,4 +1,4 @@
-package com.emedia.revalexotcpcontroller
+package com.emedia.aidwearcontroller
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -25,13 +25,16 @@ interface AppStrings {
     val listeningPort: String
     val fatigueRequest: String
     val fatigueLevel: String
+    val safetyStop: String
+    val calibrateMotors: String
+    val calibrateImus: String
     // Helper to translate modes
     fun getModeName(mode: ControllerMode): String
 }
 
 // 2. English Implementation
 object EnStrings : AppStrings {
-    override val appTitle = "RevalExo Controller"
+    override val appTitle = "Aidwear Controller"
     override val connect = "Connect"
     override val enterIp = "Enter IP Address"
     override val ipAddress = "IP Address"
@@ -51,20 +54,24 @@ object EnStrings : AppStrings {
     override val listeningPort = "Listening on Port:"
     override val fatigueRequest = "Fatigue Level Update"
     override val fatigueLevel = "Fatigue"
+    override val safetyStop = "Safety Stop"
+    override val calibrateMotors = "Calibrate Motors"
+    override val calibrateImus = "Calibrate IMUs"
 
     override fun getModeName(mode: ControllerMode): String = when(mode) {
         // CHANGED: Clearer name for elderly users
-        ControllerMode.Transparent -> "Free Movement"
+        ControllerMode.Idle -> "Idle"
         ControllerMode.Walking -> "Walking"
-        ControllerMode.SitToStance -> "Sit to Stand"
+        ControllerMode.SitToStand -> "Sit to Stand"
         ControllerMode.StairAscent -> "Stair Up"
         ControllerMode.StairDescent -> "Stair Down"
+        ControllerMode.Hurdle -> "Hurdle"
     }
 }
 
 // 3. Dutch (Nederlands) Implementation
 object NlStrings : AppStrings {
-    override val appTitle = "RevalExo Controller"
+    override val appTitle = "AidWear Controller"
     override val connect = "Verbinden"
     override val enterIp = "Voer IP-adres in"
     override val ipAddress = "IP-adres"
@@ -84,19 +91,23 @@ object NlStrings : AppStrings {
     override val listeningPort = "Luisterend op Poort:"
     override val fatigueRequest = "Update Vermoeidheid"
     override val fatigueLevel = "Vermoeidheid"
+    override val safetyStop = "Noodstop"
+    override val calibrateMotors = "Motoren Kalibreren"
+    override val calibrateImus = "IMU's Kalibreren"
 
     override fun getModeName(mode: ControllerMode): String = when(mode) {
-        ControllerMode.Transparent -> "Vrije Beweging"
+        ControllerMode.Idle -> "Vrije Beweging"
         ControllerMode.Walking -> "Wandelen"
-        ControllerMode.SitToStance -> "Zitten en Rechtstaan"
+        ControllerMode.SitToStand -> "Zitten en Rechtstaan"
         ControllerMode.StairAscent -> "Trap Op"
         ControllerMode.StairDescent -> "Trap Af"
+        ControllerMode.Hurdle -> "Horden"
     }
 }
 
 // 4. French (Français) Implementation
 object FrStrings : AppStrings {
-    override val appTitle = "Contrôleur RevalExo"
+    override val appTitle = "Contrôleur AidWear"
     override val connect = "Connecter"
     override val enterIp = "Insérer l'adresse IP"
     override val ipAddress = "Adresse IP"
@@ -116,13 +127,17 @@ object FrStrings : AppStrings {
     override val listeningPort = "Écoute sur le port:"
     override val fatigueRequest = "Mise à jour Fatigue"
     override val fatigueLevel = "Fatigue"
+    override val safetyStop = "Arrêt d'Urgence"
+    override val calibrateMotors = "Calibrer Moteurs"
+    override val calibrateImus = "Calibrer IMUs"
 
     override fun getModeName(mode: ControllerMode): String = when(mode) {
-        ControllerMode.Transparent -> "Mouvement Libre"
+        ControllerMode.Idle -> "Mouvement Libre"
         ControllerMode.Walking -> "Marcher"
-        ControllerMode.SitToStance -> "S'asseoir et Se lever"
+        ControllerMode.SitToStand -> "S'asseoir et Se lever"
         ControllerMode.StairAscent -> "Monter l'escalier"
         ControllerMode.StairDescent -> "Descendre l'escalier"
+        ControllerMode.Hurdle -> "Obstacles"
     }
 }
 

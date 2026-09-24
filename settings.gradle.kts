@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "RevalExoTCPController"
+rootProject.name = "AidWearController"
 include(":app")
  

@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.emedia.revalexotcpcontroller"
+    namespace = "com.emedia.aidwearcontroller"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.emedia.zeromqcontroller"
+        applicationId = "com.emedia.aidwearcontroller"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -58,6 +58,5 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    implementation("org.zeromq:jeromq:0.6.0")
     implementation(libs.androidx.compose.material.icons.extended)
 }

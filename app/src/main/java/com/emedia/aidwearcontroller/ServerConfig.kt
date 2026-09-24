@@ -1,4 +1,4 @@
-package com.emedia.revalexotcpcontroller
+package com.emedia.aidwearcontroller
 
 object ServerConfig {
     /**
