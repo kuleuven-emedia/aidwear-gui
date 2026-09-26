@@ -30,6 +30,8 @@ import androidx.core.view.WindowInsetsControllerCompat
 import java.net.Inet4Address
 import java.net.NetworkInterface
 import java.util.Collections
+import androidx.compose.ui.tooling.preview.Preview
+import kotlin.getValue
 
 class MainActivity : ComponentActivity() {
     private val viewModel: ControllerViewModel by viewModels()
@@ -120,6 +122,44 @@ fun ControllerScreen(
     val logs by viewModel.serverLogs.collectAsState()
     val isReady by viewModel.isReady.collectAsState()
 
+    ControllerScreenContent(
+        currentMode = currentMode,
+        assistiveLevel = assistiveLevel,
+        pendingSwitch = pendingSwitch,
+        pendingFatigue = pendingFatigue,
+        logs = logs,
+        isReady = isReady,
+        onModeSelect = { viewModel.updateMode(it) },
+        onSafetyStop = { viewModel.triggerSafetyStop() },
+        onCalibrateMotors = { viewModel.calibrateMotors() },
+        onCalibrateImus = { viewModel.calibrateImus() },
+        onAcceptSwitch = { viewModel.acceptSwitch() },
+        onRejectSwitch = { viewModel.rejectSwitch() },
+        onAcceptFatigue = { viewModel.acceptFatigueSwitch() },
+        onRejectFatigue = { viewModel.rejectFatigueSwitch() },
+        onLanguageChange = onLanguageChange
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ControllerScreenContent(
+    currentMode: ControllerMode,
+    assistiveLevel: Int,
+    pendingSwitch: ControllerMode?,
+    pendingFatigue: Int?,
+    logs: List<String>,
+    isReady: Boolean,
+    onModeSelect: (ControllerMode) -> Unit,
+    onSafetyStop: () -> Unit,
+    onCalibrateMotors: () -> Unit,
+    onCalibrateImus: () -> Unit,
+    onAcceptSwitch: () -> Unit,
+    onRejectSwitch: () -> Unit,
+    onAcceptFatigue: () -> Unit,
+    onRejectFatigue: () -> Unit,
+    onLanguageChange: (String) -> Unit
+) {
     var showMenu by remember { mutableStateOf(false) }
     var showIpDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
@@ -140,7 +180,6 @@ fun ControllerScreen(
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            // --- MAIN CONTENT ---
             Row(
                 modifier = Modifier
                     .fillMaxSize()
@@ -152,17 +191,56 @@ fun ControllerScreen(
                     modifier = Modifier.weight(0.65f).fillMaxHeight(),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Row(modifier = Modifier.weight(1f).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        BigModeButton(modes[0], currentMode, viewModel, isReady, Modifier.weight(1f))
-                        BigModeButton(modes[1], currentMode, viewModel, isReady, Modifier.weight(1f))
+                    Row(
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        BigModeButton(
+                            modes[0],
+                            currentMode,
+                            isReady,
+                            Modifier.weight(1f),
+                            onClick = { onModeSelect(modes[0]) })
+                        BigModeButton(
+                            modes[1],
+                            currentMode,
+                            isReady,
+                            Modifier.weight(1f),
+                            onClick = { onModeSelect(modes[1]) })
                     }
-                    Row(modifier = Modifier.weight(1f).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        BigModeButton(modes[2], currentMode, viewModel, isReady, Modifier.weight(1f))
-                        BigModeButton(modes[3], currentMode, viewModel, isReady, Modifier.weight(1f))
+                    Row(
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        BigModeButton(
+                            modes[2],
+                            currentMode,
+                            isReady,
+                            Modifier.weight(1f),
+                            onClick = { onModeSelect(modes[2]) })
+                        BigModeButton(
+                            modes[3],
+                            currentMode,
+                            isReady,
+                            Modifier.weight(1f),
+                            onClick = { onModeSelect(modes[3]) })
                     }
-                    Row(modifier = Modifier.weight(1f).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        BigModeButton(modes[4], currentMode, viewModel, isReady, Modifier.weight(1f))
-                        BigModeButton(modes[5], currentMode, viewModel, isReady, Modifier.weight(1f))
+                    Row(
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        BigModeButton(
+                            modes[4],
+                            currentMode,
+                            isReady,
+                            Modifier.weight(1f),
+                            onClick = { onModeSelect(modes[4]) })
+                        BigModeButton(
+                            modes[5],
+                            currentMode,
+                            isReady,
+                            Modifier.weight(1f),
+                            onClick = { onModeSelect(modes[5]) })
                     }
                 }
 
@@ -171,9 +249,8 @@ fun ControllerScreen(
                     modifier = Modifier.weight(0.35f).fillMaxHeight(),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Safety Stop button (Emergency / high priority styling)
                     Button(
-                        onClick = { viewModel.triggerSafetyStop() },
+                        onClick = onSafetyStop,
                         enabled = isReady,
                         modifier = Modifier.fillMaxWidth().weight(1f),
                         shape = MaterialTheme.shapes.large,
@@ -183,11 +260,18 @@ fun ControllerScreen(
                             disabledContainerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.5f),
                             disabledContentColor = MaterialTheme.colorScheme.onError.copy(alpha = 0.5f)
                         ),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp, pressedElevation = 0.dp)
+                        elevation = ButtonDefaults.buttonElevation(
+                            defaultElevation = 4.dp,
+                            pressedElevation = 0.dp
+                        )
                     ) {
-                        BoxWithConstraints(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        BoxWithConstraints(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
                             val iconSize = maxHeight * 0.35f
-                            val dynamicFontSize = with(LocalDensity.current) { (maxHeight.toPx() * 0.25f).toSp() }
+                            val dynamicFontSize =
+                                with(LocalDensity.current) { (maxHeight.toPx() * 0.25f).toSp() }
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
@@ -210,22 +294,32 @@ fun ControllerScreen(
                         }
                     }
 
-                    // Calibrate Motors button
                     Button(
-                        onClick = { viewModel.calibrateMotors() },
+                        onClick = onCalibrateMotors,
                         enabled = isReady,
                         modifier = Modifier.fillMaxWidth().weight(1f),
                         shape = MaterialTheme.shapes.large,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.secondaryContainer,
                             contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
-                            disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.5f)
+                            disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer.copy(
+                                alpha = 0.5f
+                            ),
+                            disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(
+                                alpha = 0.5f
+                            )
                         ),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp, pressedElevation = 0.dp)
+                        elevation = ButtonDefaults.buttonElevation(
+                            defaultElevation = 4.dp,
+                            pressedElevation = 0.dp
+                        )
                     ) {
-                        BoxWithConstraints(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            val dynamicFontSize = with(LocalDensity.current) { (maxHeight.toPx() * 0.25f).toSp() }
+                        BoxWithConstraints(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            val dynamicFontSize =
+                                with(LocalDensity.current) { (maxHeight.toPx() * 0.25f).toSp() }
                             Text(
                                 text = AppRes.strings.calibrateMotors,
                                 fontSize = dynamicFontSize,
@@ -237,22 +331,32 @@ fun ControllerScreen(
                         }
                     }
 
-                    // Calibrate IMUs button
                     Button(
-                        onClick = { viewModel.calibrateImus() },
+                        onClick = onCalibrateImus,
                         enabled = isReady,
                         modifier = Modifier.fillMaxWidth().weight(1f),
                         shape = MaterialTheme.shapes.large,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.secondaryContainer,
                             contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
-                            disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.5f)
+                            disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer.copy(
+                                alpha = 0.5f
+                            ),
+                            disabledContentColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(
+                                alpha = 0.5f
+                            )
                         ),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp, pressedElevation = 0.dp)
+                        elevation = ButtonDefaults.buttonElevation(
+                            defaultElevation = 4.dp,
+                            pressedElevation = 0.dp
+                        )
                     ) {
-                        BoxWithConstraints(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            val dynamicFontSize = with(LocalDensity.current) { (maxHeight.toPx() * 0.25f).toSp() }
+                        BoxWithConstraints(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            val dynamicFontSize =
+                                with(LocalDensity.current) { (maxHeight.toPx() * 0.25f).toSp() }
                             Text(
                                 text = AppRes.strings.calibrateImus,
                                 fontSize = dynamicFontSize,
@@ -287,73 +391,78 @@ fun ControllerScreen(
                     )
                 }
                 DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
-                    DropdownMenuItem(text = { Text(AppRes.strings.connectionSettings) }, onClick = { showMenu = false; showIpDialog = true })
-                    DropdownMenuItem(text = { Text(AppRes.strings.language) }, onClick = { showMenu = false; showLanguageDialog = true })
+                    DropdownMenuItem(
+                        text = { Text(AppRes.strings.connectionSettings) },
+                        onClick = { showMenu = false; showIpDialog = true })
+                    DropdownMenuItem(
+                        text = { Text(AppRes.strings.language) },
+                        onClick = { showMenu = false; showLanguageDialog = true })
                 }
             }
 
+            // SETTINGS OVERLAY & DIALOGS...
             if (pendingSwitch != null) {
                 ModeChangeRequestOverlay(
                     currentMode = currentMode,
-                    newMode = pendingSwitch!!,
-                    onAccept = { viewModel.acceptSwitch() },
-                    onReject = { viewModel.rejectSwitch() }
+                    newMode = pendingSwitch,
+                    onAccept = onAcceptSwitch,
+                    onReject = onRejectSwitch
                 )
             }
             if (pendingFatigue != null) {
                 FatigueChangeRequestOverlay(
                     currentLevel = assistiveLevel,
-                    newLevel = pendingFatigue!!,
-                    onAccept = { viewModel.acceptFatigueSwitch() },
-                    onReject = { viewModel.rejectFatigueSwitch() }
+                    newLevel = pendingFatigue,
+                    onAccept = onAcceptFatigue,
+                    onReject = onRejectFatigue
                 )
             }
         }
-    }
 
-    if (showIpDialog) {
-        val myDeviceIp = remember { getLocalIpAddress() }
+        if (showIpDialog) {
+            val myDeviceIp = remember { getLocalIpAddress() }
 
-        AlertDialog(
-            onDismissRequest = { showIpDialog = false },
-            title = { Text(AppRes.strings.connectionSettings) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            AlertDialog(
+                onDismissRequest = { showIpDialog = false },
+                title = { Text(AppRes.strings.connectionSettings) },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Column {
+                            Text(text = AppRes.strings.deviceIp, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
+                            Text(text = myDeviceIp, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+                        }
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(text = AppRes.strings.listeningPort, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
+                            Text(text = ServerConfig.SERVER_PORT.toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                        }
+
+                        Text("Server Logs:", style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 8.dp))
+                        Box(modifier = Modifier.height(150.dp).fillMaxWidth().background(Color.Black).padding(4.dp)) {
+                            LogView(logs = logs, modifier = Modifier.fillMaxSize())
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showIpDialog = false }) { Text(AppRes.strings.close) }
+                }
+            )
+        }
+
+        if (showLanguageDialog) {
+            AlertDialog(
+                onDismissRequest = { showLanguageDialog = false },
+                title = { Text(AppRes.strings.language) },
+                text = {
                     Column {
-                        Text(text = AppRes.strings.deviceIp, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
-                        Text(text = myDeviceIp, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+                        TextButton(onClick = { onLanguageChange("en"); showLanguageDialog = false }, modifier = Modifier.fillMaxWidth()) { Text("English") }
+                        TextButton(onClick = { onLanguageChange("nl"); showLanguageDialog = false }, modifier = Modifier.fillMaxWidth()) { Text("Nederlands") }
+                        TextButton(onClick = { onLanguageChange("fr"); showLanguageDialog = false }, modifier = Modifier.fillMaxWidth()) { Text("Français") }
                     }
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(text = AppRes.strings.listeningPort, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
-                        Text(text = ServerConfig.SERVER_PORT.toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
-                    }
-                    
-                    Text("Server Logs:", style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 8.dp))
-                    Box(modifier = Modifier.height(150.dp).fillMaxWidth().background(Color.Black).padding(4.dp)) {
-                        LogView(logs = logs, modifier = Modifier.fillMaxSize())
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showIpDialog = false }) { Text(AppRes.strings.close) }
-            }
-        )
-    }
-
-    if (showLanguageDialog) {
-        AlertDialog(
-            onDismissRequest = { showLanguageDialog = false },
-            title = { Text(AppRes.strings.language) },
-            text = {
-                Column {
-                    TextButton(onClick = { onLanguageChange("en"); showLanguageDialog = false }, modifier = Modifier.fillMaxWidth()) { Text("English") }
-                    TextButton(onClick = { onLanguageChange("nl"); showLanguageDialog = false }, modifier = Modifier.fillMaxWidth()) { Text("Nederlands") }
-                    TextButton(onClick = { onLanguageChange("fr"); showLanguageDialog = false }, modifier = Modifier.fillMaxWidth()) { Text("Français") }
-                }
-            },
-            confirmButton = { TextButton(onClick = { showLanguageDialog = false }) { Text(AppRes.strings.close) } }
-        )
+                },
+                confirmButton = { TextButton(onClick = { showLanguageDialog = false }) { Text(AppRes.strings.close) } }
+            )
+        }
     }
 }
 
@@ -379,16 +488,16 @@ fun LogView(logs: List<String>, modifier: Modifier = Modifier) {
 fun BigModeButton(
     mode: ControllerMode,
     currentMode: ControllerMode,
-    viewModel: ControllerViewModel,
     enabled: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
 ) {
     val isSelected = currentMode == mode
     val bgColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer
     val textColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
 
     Button(
-        onClick = { viewModel.updateMode(mode) },
+        onClick = { onClick() },
         enabled = enabled,
         modifier = modifier.fillMaxHeight(),
         shape = MaterialTheme.shapes.large,
@@ -480,6 +589,38 @@ fun FatigueChangeRequestOverlay(
                     Text(text = AppRes.strings.accept, fontSize = 32.sp, fontWeight = FontWeight.Bold)
                 }
             }
+        }
+    }
+}
+
+@Preview(
+    name = "923dp x 411dp",
+    showBackground = true,
+    widthDp = 923,
+    heightDp = 411
+)
+@Preview(showBackground = true, widthDp = 800, heightDp = 480)
+@Composable
+fun ControllerScreenPreview() {
+    MaterialTheme {
+        CompositionLocalProvider(LocalAppStrings provides EnStrings) {
+            ControllerScreenContent(
+                currentMode = ControllerMode.Idle,
+                assistiveLevel = 2,
+                pendingSwitch = null,
+                pendingFatigue = null,
+                logs = listOf("System initialized", "TCP Server listening on port 5000"),
+                isReady = true,
+                onModeSelect = {},
+                onSafetyStop = {},
+                onCalibrateMotors = {},
+                onCalibrateImus = {},
+                onAcceptSwitch = {},
+                onRejectSwitch = {},
+                onAcceptFatigue = {},
+                onRejectFatigue = {},
+                onLanguageChange = {}
+            )
         }
     }
 }
