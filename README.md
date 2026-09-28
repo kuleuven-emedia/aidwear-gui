@@ -15,9 +15,12 @@ The interface allows the wearer to manually select locomotion intents, execute e
 ## Visual Overview
 
 <p align="center">
+  <img src="images/overview.png" alt="AidWear Prosthesis Pipeline Overview" width="720"/>
+  <br>
+  <em>Figure 1: Real-time AI-driven leg prosthesis pipeline with human-in-the-loop control. Sensor fusion stack (left), mid-level prosthesis control (middle), with wrist UI for manual control and AI decision approval.</em>
   <img src="images/gui.png" alt="AidWear Wrist Controller UI" width="720"/>
   <br>
-  <em>Figure 1: Main supervisory 3×3 grid layout running in landscape mode on a wrist-mounted smartphone. Mode "Idle" is actively engaged.</em>
+  <em>Figure 2: Main supervisory 3×3 grid layout running in landscape mode on a wrist-mounted smartphone. Mode "Idle" is actively engaged.</em>
 </p>
 
 ---
@@ -218,5 +221,3 @@ aidwear-gui/
 ## License & Attribution
 
 Developed for the [**e-Media Research Lab, KU Leuven**](https://github.com/kuleuven-emedia).  
-
-Author: [**Maxim Yudayev**](https://github.com/maximyudayev).
